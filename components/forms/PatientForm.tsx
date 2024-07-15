@@ -128,7 +128,6 @@ const PatientForm = () => {
                 : "There was an error submitting your information. Please try again."
             }
             icon={alertType === "success" ? "success" : "error"}
-            confirmButtonText="OK"
           />
         )}
 
