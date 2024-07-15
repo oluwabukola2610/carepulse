@@ -36,7 +36,7 @@ interface CustomProps {
   disabled?: boolean;
   showTimeSelect?: boolean;
   dateFormat?: string;
-  options?: { value: string; label: string; image?: string }[];
+  options?: { value: string; label: string; image?: string }[] | null;
   renderOption?: (option: {
     value: string;
     label: string;
@@ -231,7 +231,7 @@ export const CustomSelect = ({
                 <SelectValue placeholder={placeholder} />
               </SelectTrigger>
               <SelectContent className="shad-select-content">
-                {options.map((option, index) => (
+                {options?.map((option, index) => (
                   <SelectItem key={index} value={option.value}>
                     {renderOption ? renderOption(option) : option.label}
                   </SelectItem>

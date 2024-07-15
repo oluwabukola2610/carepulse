@@ -15,9 +15,9 @@ import {
   CustomRadiobutton,
   CustomTextInput,
 } from "../CustomInput";
-import { FileUploader } from "../FileUploader";
 import { DoctorFormDefaultValues } from "@/lib/constants";
 import { DoctorFormValidation } from "@/lib/validation";
+import FileUploader from "../FileUploader";
 
 const PhysicianForm = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -178,7 +178,7 @@ const PhysicianForm = () => {
                 <FormLabel className="shad-input-label">
                   Upload Profile Picture
                 </FormLabel>
-                <FileUploader files={field.value} onChange={field.onChange} />
+                <FileUploader files={field.value} onChange={field.onChange} previewUrl={null} />
               </FormItem>
             )}
           />
