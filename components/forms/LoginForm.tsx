@@ -18,6 +18,8 @@ const LoginForm = () => {
   const [Login, { isLoading }] = useLoginMutation();
   const [message, setMessage] = useState("");
   const [showAlert, setShowAlert] = useState(false);
+  const [alertType, setAlertType] = useState<"success" | "error">("success");
+
   const form = useForm<z.infer<typeof LoginValidation>>({
     resolver: zodResolver(LoginValidation),
     defaultValues: {
@@ -25,11 +27,13 @@ const LoginForm = () => {
     },
   });
   const onSubmit = async (values: z.infer<typeof LoginValidation>) => {
+    const email = { email: values.email };
     try {
-      const response = await Login(values.email).unwrap();
-      if (response) {
-        console.log(response);
-      }
+      const response = await Login(email).unwrap();
+      setShowAlert(true);
+      setAlertType("success");
+      setMessage("Check your email for Passkey");
+      push("/login/passkey");
     } catch (error: any) {
       setMessage(error?.data?.error || "Error signing in");
       setShowAlert(true);
@@ -38,7 +42,13 @@ const LoginForm = () => {
   };
   return (
     <div>
-      {showAlert && <Alert title="Error!" text={message} icon="error" />}
+      {showAlert && (
+        <Alert
+          title={alertType === "success" ? "Success!" : "Error!"}
+          text={message}
+          icon={alertType === "success" ? "success" : "error"}
+        />
+      )}{" "}
       <div className="sub-container max-w-[860px] flex-1 flex-col py-10">
         <Image
           src="/assets/icons/logo-full.svg"

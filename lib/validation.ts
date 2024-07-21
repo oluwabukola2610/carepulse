@@ -24,7 +24,7 @@ export const PatientFormValidation = z.object({
     .max(500, "Address must be at most 500 characters"),
   emergencyContactName: z
     .string()
-    .min(2, "Emergency contact name must be at least 2 characters")
+    .min(2, "Emergency contact name IS required")
     .max(50, "Emergency contact name must be at most 50 characters"),
   emergencyContactNumber: z
     .string()
@@ -33,8 +33,7 @@ export const PatientFormValidation = z.object({
       "Invalid phone number"
     ),
   allergies: z.string().optional(),
-  bloodGroup: z
-    .enum(["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"]),
+  bloodGroup: z.enum(["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"]),
   genoType: z.enum(["AA", "AS", "SS", "AC", "SC"]),
   currentMedication: z.string().optional(),
   pastMedicalHistory: z.string().optional(),
@@ -66,10 +65,6 @@ export const DoctorFormValidation = z.object({
     .string()
     .min(2, "Full name must be at least 2 characters")
     .max(50, "Full name must be at most 50 characters"),
-  lastName: z
-    .string()
-    .min(2, "Last name must be at least 2 characters")
-    .max(50, "Last name must be at most 50 characters"),
   email: z.string().email("Invalid email address"),
   phone: z
     .string()
@@ -89,7 +84,7 @@ export const DoctorFormValidation = z.object({
     .min(2, "Specialization must be at least 2 characters")
     .max(50, "Specialization must be at most 50 characters"),
   yearsOfExperience: z
-    .number()
+    .string()
     .min(0, "Years of experience must be at least 0")
     .max(100, "Years of experience must be at most 100"),
   clinicName: z

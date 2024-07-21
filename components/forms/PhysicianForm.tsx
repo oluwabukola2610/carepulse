@@ -1,7 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { Form, FormField, FormItem, FormLabel } from "@/components/ui/form";
@@ -18,19 +18,89 @@ import {
 import { DoctorFormDefaultValues } from "@/lib/constants";
 import { DoctorFormValidation } from "@/lib/validation";
 import FileUploader from "../FileUploader";
+import {
+  useUpdatePhysiciandataMutation,
+  useUpdateUserDataMutation,
+  useUploadImageMutation,
+} from "@/services/actions/index.action";
+import Alert from "../Alert";
+import { useRouter } from "next/navigation";
 
 const PhysicianForm = () => {
-  const [isLoading, setIsLoading] = useState(false);
+  const [previewUrl, setPreviewUrl] = useState<any | null>(null);
+  const [file, setFile] = useState<File | null>(null);
+  const [upload, { isLoading }] = useUploadImageMutation();
+  const [updateData, { isLoading: isUpdating }] = useUpdateUserDataMutation();
+  const [updatePhysician, { isLoading: isUpdatingMedical }] =
+    useUpdatePhysiciandataMutation();
+  const [showAlert, setShowAlert] = useState(false);
+  const router = useRouter();
+
+  const [alertType, setAlertType] = useState<"success" | "error">("success");
   const form = useForm<z.infer<typeof DoctorFormValidation>>({
     resolver: zodResolver(DoctorFormValidation),
     defaultValues: DoctorFormDefaultValues,
   });
 
-  const onSubmit = async (values: any) => {
-    setIsLoading(true);
-    // Implement the submission logic here
+  const handleFileUpload = useCallback((file: File) => {
+    setFile(file);
+    const reader = new FileReader();
+    reader.onload = () => {
+      setPreviewUrl(reader.result as string);
+    };
+    reader.readAsDataURL(file);
+  }, []);
 
-    setIsLoading(false);
+  const onSubmit = async (values: z.infer<typeof DoctorFormValidation>) => {
+    const formData = new FormData();
+    if (file) {
+      formData.append("profileImage", file);
+    }
+    const personalData = {
+      fullName: values.fullName,
+      phone: values.phone,
+      birthDate: values.birthDate,
+      gender: values.gender,
+      address: values.address,
+      emergencyContactName: values.emergencyContactName,
+      emergencyContactNumber: values.emergencyContactNumber,
+    };
+
+    const medicalData = {
+      medicalLicenceNumber: values.medicalLicenseNumber,
+      specialization: values.specialization,
+      yearsOfExperience: values.yearsOfExperience,
+      consultationHours: values.consultationHours,
+      clinicName: values.clinicName,
+      clinicAddress: values.clinicAddress,
+    };
+    try {
+      const [personalResponse, medicalResponse, documentResponse] =
+        await Promise.all([
+          updateData(personalData),
+          updatePhysician(medicalData),
+          upload(formData),
+        ]);
+      if (
+        personalResponse?.data.status === "success" &&
+        medicalResponse?.data.status === "success" &&
+        documentResponse?.data.status === "success"
+      ) {
+        setShowAlert(true);
+        setAlertType("success");
+        router.push(`/physican/dashboard`);
+      } else {
+        setShowAlert(true);
+        setAlertType("error");
+        form.reset();
+      }
+    } catch (error) {
+      setShowAlert(true);
+      setAlertType("error");
+      console.error("Error submitting form:", error);
+    }
+    const response = await upload(formData);
+    console.log(response);
   };
 
   return (
@@ -43,7 +113,17 @@ const PhysicianForm = () => {
           <h1 className="header">Welcome 👋</h1>
           <p className="text-dark-700">Let us know more about yourself.</p>
         </section>
-
+        {showAlert && ( // Conditionally render alert
+          <Alert
+            title={alertType === "success" ? "Success!" : "Error!"}
+            text={
+              alertType === "success"
+                ? "Your information has been successfully submitted."
+                : "There was an error submitting your information. Please try again."
+            }
+            icon={alertType === "success" ? "success" : "error"}
+          />
+        )}
         <section className="space-y-6">
           <div className="mb-9 space-y-1">
             <h2 className="sub-header">Personal Information</h2>
@@ -54,15 +134,6 @@ const PhysicianForm = () => {
             name="fullName"
             label="Full Name"
             placeholder="John Doe"
-            iconSrc="/assets/icons/user.svg"
-            iconAlt="user icon"
-          />
-
-          <CustomTextInput
-            control={form.control}
-            name="lastName"
-            label="Last Name"
-            placeholder="Doe"
             iconSrc="/assets/icons/user.svg"
             iconAlt="user icon"
           />
@@ -178,7 +249,11 @@ const PhysicianForm = () => {
                 <FormLabel className="shad-input-label">
                   Upload Profile Picture
                 </FormLabel>
-                <FileUploader files={field.value} onChange={field.onChange} previewUrl={null} />
+                <FileUploader
+                  files={form.getValues("profilePicture")}
+                  onChange={handleFileUpload}
+                  previewUrl={previewUrl}
+                />{" "}
               </FormItem>
             )}
           />
@@ -208,7 +283,9 @@ const PhysicianForm = () => {
           />
         </section>
 
-        <SubmitButton isloading={isLoading}>Submit and Continue</SubmitButton>
+        <SubmitButton isloading={isLoading && isUpdating && isUpdatingMedical}>
+          Submit and Continue
+        </SubmitButton>
       </form>
     </Form>
   );

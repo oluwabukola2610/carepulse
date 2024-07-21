@@ -15,7 +15,8 @@ import Alert from "@/components/Alert";
 
 const PassKey = () => {
   const [otp, setOtp] = useState("");
-  const [validate, { isLoading: isValidating }] = useValidateLogincodeMutation();
+  const [validate, { isLoading: isValidating }] =
+    useValidateLogincodeMutation();
   const [getUser, { isLoading }] = useLazyGetUserDataQuery();
   const [message, setMessage] = useState("");
   const [showAlert, setShowAlert] = useState(false);
@@ -26,18 +27,17 @@ const PassKey = () => {
     try {
       await validate({ otp }).unwrap();
       const userResponse = await getUser({}).unwrap();
+      console.log(userResponse);
       setOtp("");
-      
-      const { role, onboardingComplete } = userResponse.bioData || {};
 
-      if (role === "Patient") {
-        if (onboardingComplete) {
+      if (userResponse.bioData?.role === "Patient") {
+        if (userResponse?.onboardingComplete) {
           push("/patient/appointments");
         } else {
           push("/patient/onboard");
         }
-      } else if (role === "Physician") {
-        if (onboardingComplete) {
+      } else if (userResponse.bioData?.role === "Physician") {
+        if (userResponse?.onboardingComplete) {
           push("/physician/dashboard");
         } else {
           push("/physician/onboard");
@@ -57,10 +57,10 @@ const PassKey = () => {
       <div className="flex flex-col items-center justify-center h-screen">
         <div className="shad-alert-dialog p-6 rounded-lg shadow-lg w-full max-w-md">
           <div className="flex items-start justify-between mb-4">
-            <h2 className="text-lg font-semibold">Verification</h2>
+            <h2 className="text-lg font-semibold">Access Verification</h2>
           </div>
           <p className="text-gray-300 mb-6">
-            Please enter the OTP to validate.
+            Please enter your passkey to continue
           </p>
           <div className="mb-6">
             <InputOTP

@@ -29,7 +29,7 @@ const Otp = () => {
       setOtp("");
       if (userResponse.bioData?.role === "Patient") {
         push("/patient/onboard");
-      } else if (userResponse.bioData?.rolele === "Physician") {
+      } else if (userResponse.bioData?.role === "Physician") {
         push("/physican/onboard");
       } else {
         push("/");

@@ -64,6 +64,13 @@ const authSlice = ApiSlice.enhanceEndpoints({}).injectEndpoints({
         body,
       }),
     }),
+    uploadImage: builder.mutation({
+      query: (body) => ({
+        url: "user/imageUpload",
+        method: "POST",
+        body
+      }),
+    }),
   }),
 });
 
@@ -78,4 +85,5 @@ export const {
   useUpdatePatientdataMutation,
   useUploadDocumentMutation,
   useUpdatePhysiciandataMutation,
+  useUploadImageMutation
 } = authSlice;

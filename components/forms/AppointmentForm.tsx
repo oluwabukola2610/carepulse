@@ -94,7 +94,6 @@ export const AppointmentForm = ({
     values: z.infer<typeof AppointmentFormValidation>
   ) => {
     try {
-      // You can perform different actions based on the type of form (create, schedule, cancel)
       switch (type) {
         case "create":
           // Example logic for creating a new appointment

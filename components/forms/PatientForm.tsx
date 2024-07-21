@@ -22,7 +22,7 @@ import {
 import {
   useUpdatePatientdataMutation,
   useUpdateUserDataMutation,
-  useUploadDocumentMutation,
+  useUploadImageMutation,
 } from "@/services/actions/index.action";
 import FileUploader from "../FileUploader";
 import Alert from "../Alert";
@@ -31,10 +31,10 @@ const PatientForm = () => {
   const [updateData, { isLoading: isUpdating }] = useUpdateUserDataMutation();
   const [updatePatientMedical, { isLoading: isUpdatingMedical }] =
     useUpdatePatientdataMutation();
-  const [upload, { isLoading: isUploading }] = useUploadDocumentMutation();
+  const [uploadImage, { isLoading: isUploading }] = useUploadImageMutation();
+  const [file, setFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
-  const [base64File, setBase64File] = useState<string>("");
-  const [showAlert, setShowAlert] = useState(false); // State to control alert visibility
+  const [showAlert, setShowAlert] = useState(false);
   const [alertType, setAlertType] = useState<"success" | "error">("success");
   const router = useRouter();
   const form = useForm<z.infer<typeof PatientFormValidation>>({
@@ -44,18 +44,19 @@ const PatientForm = () => {
     },
   });
   const handleFileUpload = useCallback((file: File) => {
+    setFile(file);
     const reader = new FileReader();
     reader.onload = () => {
-      const base64String = reader.result?.toString().split(",")[1] || "";
-      setBase64File(base64String); // Store base64 string
-      setPreviewUrl(reader.result?.toString() || ""); // Set preview URL
+      setPreviewUrl(reader.result as string);
     };
     reader.readAsDataURL(file);
   }, []);
 
   const onSubmit = async (values: z.infer<typeof PatientFormValidation>) => {
-    console.log("Form values:", values);
-    console.log(base64File);
+    const formData = new FormData();
+    if (file) {
+      formData.append("profileImage", file);
+    }
 
     const personalData = {
       fullName: values.fullName,
@@ -75,28 +76,22 @@ const PatientForm = () => {
       medicalHistory: values.pastMedicalHistory,
     };
 
-    const documentData = {
-      documentType: values.identificationType,
-      documentNumber: values.identificationNumber,
-      base64: base64File,
-    };
-
     try {
       const [personalResponse, medicalResponse, documentResponse] =
         await Promise.all([
-          updateData(personalData),
-          updatePatientMedical(medicalData),
-          upload(documentData),
+          updateData(personalData).unwrap(),
+          updatePatientMedical(medicalData).unwrap(),
+          uploadImage(formData).unwrap(),
         ]);
+
       if (
-        personalResponse?.data.status === "success" &&
-        medicalResponse?.data.status === "success" &&
-        documentResponse?.data.status === "success"
+        personalResponse.message === "User data updated" &&
+        medicalResponse.status === "ok" &&
+        documentResponse.status === "ok"
       ) {
         setShowAlert(true);
         setAlertType("success");
-        // Optionally redirect after successful submission
-        // router.push(`/patient/success`);
+        router.push(`/patient/new-appointment`);
       } else {
         setShowAlert(true);
         setAlertType("error");
@@ -119,7 +114,7 @@ const PatientForm = () => {
           <h1 className="header">Welcome 👋</h1>
           <p className="text-dark-700">Let us know more about yourself.</p>
         </section>
-        {showAlert && ( // Conditionally render alert
+        {showAlert && (
           <Alert
             title={alertType === "success" ? "Success!" : "Error!"}
             text={
