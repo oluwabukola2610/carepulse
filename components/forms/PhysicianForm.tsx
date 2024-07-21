@@ -77,14 +77,15 @@ const PhysicianForm = () => {
     try {
       const [personalResponse, medicalResponse, documentResponse] =
         await Promise.all([
-          updateData(personalData),
-          updatePhysician(medicalData),
-          upload(formData),
+          updateData(personalData).unwrap(),
+          updatePhysician(medicalData).unwrap(),
+          upload(formData).unwrap(),
         ]);
+        
       if (
-        personalResponse?.data.status === "success" &&
-        medicalResponse?.data.status === "success" &&
-        documentResponse?.data.status === "success"
+        personalResponse.message === "User data updated" &&
+        medicalResponse.status === "ok" &&
+        documentResponse.status === "ok"
       ) {
         setShowAlert(true);
         setAlertType("success");

@@ -29,7 +29,6 @@ const PassKey = () => {
       const userResponse = await getUser({}).unwrap();
       console.log(userResponse);
       setOtp("");
-
       if (userResponse.bioData?.role === "Patient") {
         if (userResponse?.onboardingComplete) {
           push("/patient/appointments");
@@ -38,9 +37,9 @@ const PassKey = () => {
         }
       } else if (userResponse.bioData?.role === "Physician") {
         if (userResponse?.onboardingComplete) {
-          push("/physician/dashboard");
+          push("/physican/dashboard");
         } else {
-          push("/physician/onboard");
+          push("/physican/onboard");
         }
       } else {
         push("/");
