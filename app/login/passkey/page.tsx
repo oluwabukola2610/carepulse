@@ -30,13 +30,13 @@ const PassKey = () => {
       console.log(userResponse);
       setOtp("");
       if (userResponse.bioData?.role === "Patient") {
-        if (userResponse?.onboardingComplete) {
-          push("/patient/appointments");
+        if (userResponse?.onboarding === true) {
+          push("/patient/new-appointment");
         } else {
           push("/patient/onboard");
         }
       } else if (userResponse.bioData?.role === "Physician") {
-        if (userResponse?.onboardingComplete) {
+        if (userResponse?.onboarding === true) {
           push("/physican/dashboard");
         } else {
           push("/physican/onboard");
@@ -78,7 +78,7 @@ const PassKey = () => {
           <button
             onClick={validateOtp}
             className="shad-primary-btn w-full py-2 rounded-md text-white bg-green-500 hover:bg-green-600"
-            disabled={isValidating || otp.length !== 4}
+            disabled={isValidating && otp.length !== 4}
           >
             {isValidating ? "Validating..." : "Validate OTP"}
           </button>

@@ -1,28 +1,26 @@
 "use client";
-
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import "react-datepicker/dist/react-datepicker.css";
 import { Form } from "../ui/form";
-import {
-  CustomDatePicker,
-  CustomTextArea,
-  CustomTextInput,
-} from "../CustomInput";
+import { CustomDatePicker, CustomTextArea } from "../CustomInput";
 import SubmitButton from "../CustomButton";
 import { getAppointmentSchema } from "@/lib/validation";
+import { useCreateAppointMentMutation } from "@/services/actions/index.action";
 import { useState } from "react";
+import Alert from "../Alert";
 
 export const AppointmentForm = ({
   type = "create",
 }: {
   type: "create" | "schedule" | "cancel";
 }) => {
-  const [isLoading, setIsLoading] = useState(false);
-
+  const [CreateAppointment, { isLoading }] = useCreateAppointMentMutation();
   const AppointmentFormValidation = getAppointmentSchema(type);
+  const [showAlert, setShowAlert] = useState(false);
+  const { push } = useRouter();
 
   const form = useForm<z.infer<typeof AppointmentFormValidation>>({
     resolver: zodResolver(AppointmentFormValidation),
@@ -33,85 +31,35 @@ export const AppointmentForm = ({
       cancellationReason: "",
     },
   });
-
-  // const onSubmit = async (values: z.infer<typeof AppointmentFormValidation>) => {
-  //   setIsLoading(true);
-
-  //   let status;
-  //   switch (type) {
-  //     case "schedule":
-  //       status = "scheduled";
-  //       break;
-  //     case "cancel":
-  //       status = "cancelled";
-  //       break;
-  //     default:
-  //       status = "pending";
-  //   }
-
-  //   try {
-  //     // Replace with actual logic for creating or updating appointments
-  //     if (type === "create") {
-  //       const appointment = {
-  //         userId: "userIdPlaceholder",
-  //         patient: "patientIdPlaceholder",
-  //         schedule: new Date(values.schedule),
-  //         reason: values.reason!,
-  //         status,
-  //         note: values.note,
-  //       };
-
-  //       const newAppointment = await CreateAppointmentSchema(appointment);
-  //       if (newAppointment) {
-  //         form.reset();
-  //         router.push(`/patients/userIdPlaceholder/new-appointment/success?appointmentId=${newAppointment.$id}`);
-  //       }
-  //     } else {
-  //       const appointmentToUpdate = {
-  //         userId: "userIdPlaceholder",
-  //         appointmentId: "appointmentIdPlaceholder",
-  //         appointment: {
-  //           schedule: new Date(values.schedule),
-  //           status,
-  //           cancellationReason: values.cancellationReason,
-  //         },
-  //         type,
-  //       };
-
-  //       const updatedAppointment = await updateAppointment(appointmentToUpdate);
-  //       if (updatedAppointment) {
-  //         setOpen && setOpen(false);
-  //         form.reset();
-  //       }
-  //     }
-  //   } catch (error) {
-  //     console.error(error);
-  //   } finally {
-  //     setIsLoading(false);
-  //   }
-  // };
   const onSubmit = async (
     values: z.infer<typeof AppointmentFormValidation>
   ) => {
     try {
       switch (type) {
         case "create":
-          // Example logic for creating a new appointment
-          console.log("Creating new appointment:", values);
+          const appointment = {
+            schedule: values.schedule,
+            reason: values.reason,
+            comment: values.note,
+          };
+          const newAppointment = await CreateAppointment(appointment);
+          if (newAppointment) {
+            form.reset();
+            push("/patient/new-appointment/success");
+          }
           break;
         case "schedule":
-          // Example logic for scheduling an appointment
           console.log("Scheduling appointment:", values);
           break;
         case "cancel":
-          // Example logic for cancelling an appointment
           console.log("Cancelling appointment:", values);
           break;
         default:
           console.log("Unsupported form type");
       }
     } catch (error) {
-      console.error("");
+      console.error("Error submitting appointment:", error);
+      setShowAlert(true);
     }
   };
 
@@ -124,6 +72,14 @@ export const AppointmentForm = ({
 
   return (
     <Form {...form}>
+      {showAlert && (
+        <Alert
+          title="Error!"
+          text="Error submitting appointment"
+          icon="error"
+        />
+      )}
+
       <form onSubmit={form.handleSubmit(onSubmit)} className="flex-1 space-y-6">
         {type === "create" && (
           <section className="mb-12 space-y-4">

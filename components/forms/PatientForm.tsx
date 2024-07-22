@@ -22,7 +22,7 @@ import {
 import {
   useUpdatePatientdataMutation,
   useUpdateUserDataMutation,
-  useUploadImageMutation,
+  useUploadDocumentMutation,
 } from "@/services/actions/index.action";
 import FileUploader from "../FileUploader";
 import Alert from "../Alert";
@@ -31,7 +31,8 @@ const PatientForm = () => {
   const [updateData, { isLoading: isUpdating }] = useUpdateUserDataMutation();
   const [updatePatientMedical, { isLoading: isUpdatingMedical }] =
     useUpdatePatientdataMutation();
-  const [uploadImage, { isLoading: isUploading }] = useUploadImageMutation();
+  const [uploadDocument, { isLoading: isUploading }] =
+    useUploadDocumentMutation();
   const [file, setFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [showAlert, setShowAlert] = useState(false);
@@ -55,7 +56,7 @@ const PatientForm = () => {
   const onSubmit = async (values: z.infer<typeof PatientFormValidation>) => {
     const formData = new FormData();
     if (file) {
-      formData.append("profileImage", file);
+      formData.append("documentImage", file);
     }
 
     const personalData = {
@@ -81,7 +82,7 @@ const PatientForm = () => {
         await Promise.all([
           updateData(personalData).unwrap(),
           updatePatientMedical(medicalData).unwrap(),
-          uploadImage(formData).unwrap(),
+          uploadDocument(formData).unwrap(),
         ]);
 
       if (

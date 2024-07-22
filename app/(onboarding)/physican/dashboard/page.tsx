@@ -1,21 +1,44 @@
 "use client";
+import React from "react";
 import Image from "next/image";
 import Link from "next/link";
-
 import { StatCard } from "@/components/StatsCard";
 import { DataTable } from "@/components/DataTable";
 import {
+  useGetAllApointmentQuery,
   useGetUserDataQuery,
-  useLazyGetUserDataQuery,
 } from "@/services/actions/index.action";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 
 const Dashboard = () => {
-  const { data, isLoading } = useGetUserDataQuery({});
+  const { data } = useGetUserDataQuery({});
+  const { data: appointment } = useGetAllApointmentQuery({});
+
+  const scheduledAppointments =
+    appointment?.appointments.filter(
+      (appt: { status: string }) => appt.status === "scheduled"
+    ).length || 0;
+  const pendingAppointments =
+    appointment?.appointments.filter(
+      (appt: { status: string }) => appt.status === "pending"
+    ).length || 0;
+  const cancelledAppointments =
+    appointment?.appointments.filter(
+      (appt: { status: string }) => appt.status === "cancelled"
+    ).length || 0;
+
+  const handleLogout = () => {
+    // Handle logout logic here
+  };
+
+  const handleProfile = () => {
+    // Handle profile navigation here
+  };
 
   return (
     <div className="mx-auto flex max-w-7xl flex-col space-y-14">
-      <header className="admin-header">
+      <header className="admin-header flex justify-between items-center py-4 px-6">
         <Link href="/" className="cursor-pointer">
           <Image
             src="/assets/icons/logo-full.svg"
@@ -26,12 +49,26 @@ const Dashboard = () => {
           />
         </Link>
 
-        <div className="flex space-x-2 items-center">
-          <Avatar>
-            <AvatarImage src={data?.bioData?.profilePic} />
-          </Avatar>
-          <p className="text-16-semibold">{data?.bioData?.fullName}</p>
-        </div>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <div className="flex space-x-2 items-center cursor-pointer">
+              <Avatar>
+                <AvatarImage src={data?.bioData?.profilePic} />
+                <AvatarFallback>
+                  {data?.bioData?.fullName
+                    .split(" ")
+                    .map((name: any[]) => name[0])
+                    .join("")}
+                </AvatarFallback>
+              </Avatar>
+              <p className="text-16-semibold">{data?.bioData?.fullName}</p>
+            </div>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent className="w-48">
+            <DropdownMenuItem onClick={handleProfile}>Profile</DropdownMenuItem>
+            <DropdownMenuItem onClick={handleLogout}>Logout</DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </header>
 
       <main className="admin-main">
@@ -45,19 +82,19 @@ const Dashboard = () => {
         <section className="admin-stat">
           <StatCard
             type="appointments"
-            count={0}
+            count={scheduledAppointments}
             label="Scheduled appointments"
             icon={"/assets/icons/appointments.svg"}
           />
           <StatCard
             type="pending"
-            count={0}
+            count={pendingAppointments}
             label="Pending appointments"
             icon={"/assets/icons/pending.svg"}
           />
           <StatCard
             type="cancelled"
-            count={0}
+            count={cancelledAppointments}
             label="Cancelled appointments"
             icon={"/assets/icons/cancelled.svg"}
           />

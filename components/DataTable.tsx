@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/rules-of-hooks */
 import React from "react";
 import {
   ColumnDef,
@@ -18,24 +19,40 @@ import { Avatar, AvatarFallback } from "./ui/avatar";
 import { Button } from "./ui/button";
 import Image from "next/image";
 import { StatusBadge } from "./StatusBadge";
+import { useGetAllPatientQuery } from "@/services/actions/index.action";
+import { Skeleton } from "./ui/skeleton";
+// Define the type for patient data
+interface Patient {
+  fullName: string;
+  createdAt: string | number | Date;
+  gender: string;
+  status: Status;
+}
 
-const columns: ColumnDef<any>[] = [
+// Define the type for columns
+const columns: ColumnDef<Patient>[] = [
   {
-    accessorKey: "patient",
+    accessorKey: "fullName",
     header: "Patient",
     cell: (info) => (
       <div className="flex items-center">
         <Avatar>
-          <AvatarFallback>{info.getValue() as string} </AvatarFallback>
+          <AvatarFallback className="bg-blue-500 text-white">
+            {info
+              .getValue<string>()
+              .split(" ")
+              .map((name) => name[0])
+              .join("")}
+          </AvatarFallback>
         </Avatar>
-        <span className="ml-2">{info.getValue() as string}</span>
+        <span className="ml-2">{info.getValue<string>()}</span>
       </div>
     ),
   },
   {
-    accessorKey: "date",
+    accessorKey: "createdAt",
     header: "Date",
-    cell: (info) => info.getValue(),
+    cell: (info) => new Date(info.getValue<string>()).toLocaleDateString(),
   },
   {
     accessorKey: "status",
@@ -52,7 +69,7 @@ const columns: ColumnDef<any>[] = [
   {
     accessorKey: "gender",
     header: "Gender",
-    cell: (info) => info.getValue(),
+    cell: (info) => info.getValue<string>(),
   },
   {
     accessorKey: "actions",
@@ -67,29 +84,18 @@ const columns: ColumnDef<any>[] = [
   },
 ];
 
-const data = [
-  {
-    patient: "John Doe",
-    date: "2024-07-20",
-    status: "pending",
-    gender: "Male",
-    actions: "",
-  },
-  {
-    patient: "Jane Smith",
-    date: "2024-07-21",
-    status: "scheduled",
-    gender: "Female",
-    actions: "",
-  },
-];
-// interface DataTableProps<TData, TValue> {
-//   columns: ColumnDef<TData, TValue>[];
-//   data: TData[];
-// }
 export function DataTable() {
+  const { data: patientData, isLoading: isGettingPatient } =
+    useGetAllPatientQuery({});
+
+  const patients: Patient[] =
+    patientData?.patients.map((patient: Patient) => ({
+      ...patient,
+      status: "pending",
+    })) || [];
+
   const table = useReactTable({
-    data,
+    data: patients,
     columns,
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
@@ -117,7 +123,29 @@ export function DataTable() {
           ))}
         </TableHeader>
         <TableBody>
-          {table.getRowModel().rows?.length ? (
+          {isGettingPatient ? (
+            Array(10)
+              .fill(0)
+              .map((_, idx) => (
+                <TableRow key={idx} className="shad-table-row">
+                  <TableCell>
+                    <Skeleton className="h-6 w-32" />
+                  </TableCell>
+                  <TableCell>
+                    <Skeleton className="h-6 w-24" />
+                  </TableCell>
+                  <TableCell>
+                    <Skeleton className="h-6 w-20" />
+                  </TableCell>
+                  <TableCell>
+                    <Skeleton className="h-6 w-16" />
+                  </TableCell>
+                  <TableCell>
+                    <Skeleton className="h-6 w-40" />
+                  </TableCell>
+                </TableRow>
+              ))
+          ) : table.getRowModel().rows?.length ? (
             table.getRowModel().rows.map((row) => (
               <TableRow
                 key={row.id}

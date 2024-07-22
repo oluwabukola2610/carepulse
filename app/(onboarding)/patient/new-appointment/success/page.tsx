@@ -1,17 +1,9 @@
 import Image from "next/image";
 import Link from "next/link";
-
 import { Button } from "@/components/ui/button";
 import { formatDateTime } from "@/lib/utils";
 
-const RequestSuccess =  () => {
-//   const appointmentId = (searchParams?.appointmentId as string) || "";
-//   const appointment = await getAppointment(appointmentId);
-
-//   const doctor = Doctors.find(
-//     (doctor) => doctor.name === appointment.primaryPhysician
-//   );
-
+const RequestSuccess = () => {
   return (
     <div className=" flex h-screen max-h-screen px-[5%]">
       <div className="success-img">
@@ -39,16 +31,16 @@ const RequestSuccess =  () => {
           <p>We&apos;ll be in touch shortly to confirm.</p>
         </section>
 
-        <section className="request-details">
+        {/* <section className="request-details">
           <p>Requested appointment details: </p>
           <div className="flex items-center gap-3">
-            {/* <Image
+            <Image
               src={doctor?.image!}
               alt="doctor"
               width={100}
               height={100}
               className="size-6"
-            /> */}
+            />
             <p className="whitespace-nowrap">Dr. </p>
           </div>
           <div className="flex gap-2">
@@ -60,12 +52,10 @@ const RequestSuccess =  () => {
             />
             <p> {formatDateTime("").dateTime ||"ok"}</p>
           </div>
-        </section>
+        </section> */}
 
         <Button variant="outline" className="shad-primary-btn" asChild>
-          <Link href={`/patient/new-appointment`}>
-            New Appointment
-          </Link>
+          <Link href="/patient/new-appointment">New Appointment</Link>
         </Button>
 
         <p className="copyright">© 2024 CarePluse</p>

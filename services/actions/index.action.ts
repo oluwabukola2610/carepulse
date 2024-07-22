@@ -68,7 +68,39 @@ const authSlice = ApiSlice.enhanceEndpoints({}).injectEndpoints({
       query: (body) => ({
         url: "user/imageUpload",
         method: "POST",
-        body
+        body,
+      }),
+    }),
+    createAppointMent: builder.mutation({
+      query: (body) => ({
+        url: "user/book-appointment",
+        method: "POST",
+        body,
+      }),
+    }),
+    cancelAppointMent: builder.mutation({
+      query: (body) => ({
+        url: "user/cancel-appointment",
+        method: "POST",
+        body,
+      }),
+    }),
+    getAllPatient: builder.query({
+      query: () => ({
+        url: "user/patients",
+        method: "GET",
+      }),
+    }),
+    getAllApointment: builder.query({
+      query: () => ({
+        url: "user/appointments",
+        method: "GET",
+      }),
+    }),
+    getPhysician: builder.query({
+      query: () => ({
+        url: "user/physicians",
+        method: "GET",
       }),
     }),
   }),
@@ -85,5 +117,10 @@ export const {
   useUpdatePatientdataMutation,
   useUploadDocumentMutation,
   useUpdatePhysiciandataMutation,
-  useUploadImageMutation
+  useUploadImageMutation,
+  useCreateAppointMentMutation,
+  useCancelAppointMentMutation,
+  useGetAllApointmentQuery,
+  useGetAllPatientQuery,
+  useGetPhysicianQuery,
 } = authSlice;

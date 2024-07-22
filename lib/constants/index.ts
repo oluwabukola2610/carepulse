@@ -15,8 +15,7 @@ export const PatientFormDefaultValues = {
   genoType: "" as genoType,
   currentMedication: "",
   pastMedicalHistory: "",
-  identificationType: "Birth Certificate",
-  identificationNumber: "",
+  identificationType: "",
   identificationDocument: [],
   treatmentConsent: false,
   disclosureConsent: false,
@@ -44,13 +43,7 @@ export const DoctorFormDefaultValues = {
   dataProtectionConsent: false,
 };
 
-export const IdentificationTypes = [
-  "Birth Certificate",
-  "Medical Insurance Card/Policy",
-  "National Identity Card",
-  "Passport",
-  "Student ID Card",
-];
+export const IdentificationTypes = ["National Identity Card"];
 
 // export const Doctors = [
 //   {
@@ -96,3 +89,19 @@ export const StatusIcon = {
   pending: "/assets/icons/pending.svg",
   cancelled: "/assets/icons/cancelled.svg",
 };
+// import Image from "next/image";
+
+// export default function Loading() {
+//   return (
+//     <div className="flex-center size-full h-screen gap-3 text-white">
+//       <Image
+//         src="/assets/icons/loader.svg"
+//         alt="loader"
+//         width={40}
+//         height={3240}
+//         className="animate-spin"
+//       />
+//       Loading...
+//     </div>
+//   );
+// }
