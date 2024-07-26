@@ -1,5 +1,5 @@
 /* eslint-disable react-hooks/rules-of-hooks */
-import React from "react";
+import React, { useState } from "react";
 import {
   ColumnDef,
   flexRender,
@@ -19,83 +19,103 @@ import { Avatar, AvatarFallback } from "./ui/avatar";
 import { Button } from "./ui/button";
 import Image from "next/image";
 import { StatusBadge } from "./StatusBadge";
-import { useGetAllPatientQuery } from "@/services/actions/index.action";
+import { useGetAllApointmentQuery } from "@/services/actions/index.action";
 import { Skeleton } from "./ui/skeleton";
-// Define the type for patient data
-interface Patient {
-  fullName: string;
-  createdAt: string | number | Date;
-  gender: string;
+import { ScheduledModal } from "./ScheduledModal";
+
+interface Appointment {
+  _id: string;
+  userId: string;
+  fullName?: string;
+  reason: string;
+  comment: string;
+  schedule: string;
   status: Status;
+  cancelReason?: string;
+  appointmentId: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
-// Define the type for columns
-const columns: ColumnDef<Patient>[] = [
-  {
-    accessorKey: "fullName",
-    header: "Patient",
-    cell: (info) => (
-      <div className="flex items-center">
-        <Avatar>
-          <AvatarFallback className="bg-blue-500 text-white">
-            {info
-              .getValue<string>()
-              .split(" ")
-              .map((name) => name[0])
-              .join("")}
-          </AvatarFallback>
-        </Avatar>
-        <span className="ml-2">{info.getValue<string>()}</span>
-      </div>
-    ),
-  },
-  {
-    accessorKey: "createdAt",
-    header: "Date",
-    cell: (info) => new Date(info.getValue<string>()).toLocaleDateString(),
-  },
-  {
-    accessorKey: "status",
-    header: "Status",
-    cell: ({ row }) => {
-      const data = row.original;
-      return (
-        <div className="min-w-[115px]">
-          <StatusBadge status={data.status} />
-        </div>
-      );
-    },
-  },
-  {
-    accessorKey: "gender",
-    header: "Gender",
-    cell: (info) => info.getValue<string>(),
-  },
-  {
-    accessorKey: "actions",
-    header: "Actions",
-    cell: (info) => (
-      <div className="flex space-x-2">
-        <button className="btn-scheduled">Scheduled</button>
-        <button className="btn-details">Details</button>
-        <button className="btn-cancel">Cancel</button>
-      </div>
-    ),
-  },
-];
-
 export function DataTable() {
-  const { data: patientData, isLoading: isGettingPatient } =
-    useGetAllPatientQuery({});
+  const { data: patientAppointment, isLoading } = useGetAllApointmentQuery({});
+  const [scheduleModalOpen, setScheduleModalOpen] = useState<boolean>(false);
+  const [selectedAppointment, setSelectedAppointment] =
+    useState<Appointment | null>(null);
 
-  const patients: Patient[] =
-    patientData?.patients.map((patient: Patient) => ({
-      ...patient,
-      status: "pending",
-    })) || [];
+  const appointments: Appointment[] = patientAppointment?.appointments || [];
 
+  const columns: ColumnDef<Appointment>[] = [
+    {
+      accessorKey: "fullName",
+      header: "Patient",
+      cell: (info) => (
+        <div className="flex items-center">
+          <Avatar>
+            <AvatarFallback className="bg-blue-500 text-white">
+              {info
+                .getValue<string>()
+                ?.split(" ")
+                .map((name) => name[0])
+                .join("")}
+            </AvatarFallback>
+          </Avatar>
+        </div>
+      ),
+    },
+    {
+      accessorKey: "schedule",
+      header: "Scheduled Date & Time",
+      cell: (info) => {
+        const date = new Date(info.getValue<string>());
+        const formattedDate = date.toLocaleDateString();
+        const formattedTime = date.toLocaleTimeString([], {
+          hour: "2-digit",
+          minute: "2-digit",
+        });
+        return `${formattedDate} ${formattedTime}`;
+      },
+    },
+    {
+      accessorKey: "comment",
+      header: "Comment",
+      cell: (info) => info.getValue<string>(),
+    },
+    {
+      accessorKey: "status",
+      header: "Status",
+      cell: ({ row }) => {
+        const data = row.original;
+        return (
+          <div className="min-w-[115px]">
+            <StatusBadge status={data.status} />
+          </div>
+        );
+      },
+    },
+    {
+      accessorKey: "actions",
+      header: "Actions",
+      cell: ({ row }) => (
+        <div className="flex space-x-2">
+          <button
+            className="btn-scheduled"
+            onClick={() => handleScheduleClick(row.original)}
+          >
+            Schedule
+          </button>
+          <button className="btn-details">Details</button>
+          <button className="btn-cancel">Cancel</button>
+        </div>
+      ),
+    },
+  ];
+  const handleScheduleClick = (appointment: Appointment) => {
+    setScheduleModalOpen(true);
+    setSelectedAppointment(appointment);
+  };
   const table = useReactTable({
-    data: patients,
+    data: appointments,
     columns,
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
@@ -123,7 +143,7 @@ export function DataTable() {
           ))}
         </TableHeader>
         <TableBody>
-          {isGettingPatient ? (
+          {isLoading ? (
             Array(10)
               .fill(0)
               .map((_, idx) => (
@@ -199,6 +219,12 @@ export function DataTable() {
           />
         </Button>
       </div>
+      {scheduleModalOpen && (
+        <ScheduledModal
+          appointment={selectedAppointment}
+          onClose={() => setScheduleModalOpen(false)}
+        />
+      )}
     </div>
   );
 }

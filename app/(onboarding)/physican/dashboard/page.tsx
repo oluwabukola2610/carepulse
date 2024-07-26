@@ -9,7 +9,13 @@ import {
   useGetUserDataQuery,
 } from "@/services/actions/index.action";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { ArrowBigDown, ArrowDown, ArrowDownToDot, ChevronDown, LogOut, UserCheck } from "lucide-react";
 
 const Dashboard = () => {
   const { data } = useGetUserDataQuery({});
@@ -49,9 +55,10 @@ const Dashboard = () => {
           />
         </Link>
 
+      
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <div className="flex space-x-2 items-center cursor-pointer">
+            <div className="flex items-center cursor-pointer">
               <Avatar>
                 <AvatarImage src={data?.bioData?.profilePic} />
                 <AvatarFallback>
@@ -61,12 +68,19 @@ const Dashboard = () => {
                     .join("")}
                 </AvatarFallback>
               </Avatar>
-              <p className="text-16-semibold">{data?.bioData?.fullName}</p>
+              <p className="text-16-semibold ml-2">{data?.bioData?.fullName}</p>
+              <ChevronDown className="ml-2" />
             </div>
           </DropdownMenuTrigger>
-          <DropdownMenuContent className="w-48">
-            <DropdownMenuItem onClick={handleProfile}>Profile</DropdownMenuItem>
-            <DropdownMenuItem onClick={handleLogout}>Logout</DropdownMenuItem>
+          <DropdownMenuContent align="end" className="stat-card">
+            <DropdownMenuItem onClick={handleProfile}>
+              <UserCheck className="mr-2" />
+              Profile
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={handleLogout}>
+              <LogOut className="mr-2" />
+              Logout
+            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </header>
