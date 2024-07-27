@@ -1,5 +1,7 @@
 import { ApiSlice } from "..";
-const authSlice = ApiSlice.enhanceEndpoints({}).injectEndpoints({
+const authSlice = ApiSlice.enhanceEndpoints({
+  addTagTypes: ["Appointments"],
+}).injectEndpoints({
   endpoints: (builder) => ({
     register: builder.mutation({
       query: (body) => ({
@@ -77,6 +79,7 @@ const authSlice = ApiSlice.enhanceEndpoints({}).injectEndpoints({
         method: "POST",
         body,
       }),
+      invalidatesTags: ["Appointments"],
     }),
     cancelAppointMent: builder.mutation({
       query: (body) => ({
@@ -84,6 +87,7 @@ const authSlice = ApiSlice.enhanceEndpoints({}).injectEndpoints({
         method: "POST",
         body,
       }),
+      invalidatesTags: ["Appointments"],
     }),
     getAllPatient: builder.query({
       query: () => ({
@@ -96,6 +100,7 @@ const authSlice = ApiSlice.enhanceEndpoints({}).injectEndpoints({
         url: "user/appointments",
         method: "GET",
       }),
+      providesTags: ["Appointments"],
     }),
     getPhysician: builder.query({
       query: () => ({

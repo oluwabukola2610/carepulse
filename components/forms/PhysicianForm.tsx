@@ -89,7 +89,7 @@ const PhysicianForm = () => {
       ) {
         setShowAlert(true);
         setAlertType("success");
-        router.push(`/physican/dashboard`);
+        router.push(`/dashboard`);
       } else {
         setShowAlert(true);
         setAlertType("error");

@@ -37,7 +37,7 @@ const PassKey = () => {
         }
       } else if (userResponse.bioData?.role === "Physician") {
         if (userResponse?.onboarding === true) {
-          push("/physican/dashboard");
+          push("/dashboard");
         } else {
           push("/physican/onboard");
         }

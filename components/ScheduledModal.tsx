@@ -7,6 +7,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { AppointmentForm } from "./forms/AppointmentForm";
 
 export const ScheduledModal = ({
   appointment,
@@ -51,6 +52,7 @@ export const ScheduledModal = ({
           <p className="font-medium">Comment:</p>
           <p>{appointment?.comment}</p>
         </div>
+        {/* <AppointmentForm type="schedule" /> */}
         <div className="flex justify-center mt-4">
           <Button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
             Accept

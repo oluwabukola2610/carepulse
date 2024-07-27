@@ -8,16 +8,25 @@ import { Form } from "../ui/form";
 import { CustomDatePicker, CustomTextArea } from "../CustomInput";
 import SubmitButton from "../CustomButton";
 import { getAppointmentSchema } from "@/lib/validation";
-import { useCreateAppointMentMutation } from "@/services/actions/index.action";
+import {
+  useCancelAppointMentMutation,
+  useCreateAppointMentMutation,
+} from "@/services/actions/index.action";
 import { useState } from "react";
 import Alert from "../Alert";
 
 export const AppointmentForm = ({
-  type = "create",
+  type,
+  id,
 }: {
   type: "create" | "schedule" | "cancel";
+  id?: string;
 }) => {
-  const [CreateAppointment, { isLoading }] = useCreateAppointMentMutation();
+  const [createAppointment, { isLoading: isCreating }] =
+    useCreateAppointMentMutation();
+  const [cancelAppointment, { isLoading: isCanceling }] =
+    useCancelAppointMentMutation();
+
   const AppointmentFormValidation = getAppointmentSchema(type);
   const [showAlert, setShowAlert] = useState(false);
   const { push } = useRouter();
@@ -31,31 +40,37 @@ export const AppointmentForm = ({
       cancellationReason: "",
     },
   });
+
   const onSubmit = async (
     values: z.infer<typeof AppointmentFormValidation>
   ) => {
+    console.log("Form values:", values);
     try {
-      switch (type) {
-        case "create":
-          const appointment = {
-            schedule: values.schedule,
-            reason: values.reason,
-            comment: values.note,
-          };
-          const newAppointment = await CreateAppointment(appointment);
-          if (newAppointment) {
-            form.reset();
-            push("/patient/new-appointment/success");
-          }
-          break;
-        case "schedule":
-          console.log("Scheduling appointment:", values);
-          break;
-        case "cancel":
-          console.log("Cancelling appointment:", values);
-          break;
-        default:
-          console.log("Unsupported form type");
+      if (type === "create" && "schedule" in values && "reason" in values) {
+        const appointment = {
+          schedule: values.schedule,
+          reason: values.reason,
+          comment: values.note,
+        };
+        const newAppointment = await createAppointment(appointment).unwrap();
+        if (newAppointment) {
+          form.reset();
+          push("/patient/new-appointment/success");
+        }
+      } else if (type === "cancel" && "cancellationReason" in values) {
+        const cancelData = {
+          appointmentId: id,
+          reason: values.cancellationReason,
+        };
+        const cancelledAppointment = await cancelAppointment(
+          cancelData
+        ).unwrap();
+        if (cancelledAppointment) {
+          form.reset();
+          console.log("Cancellation successful:", cancelledAppointment);
+        }
+      } else {
+        console.log("Unsupported form type");
       }
     } catch (error) {
       console.error("Error submitting appointment:", error);
@@ -134,10 +149,10 @@ export const AppointmentForm = ({
         )}
 
         <SubmitButton
-          isloading={isLoading}
+          isloading={isCreating || isCanceling}
           className={`${
             type === "cancel" ? "shad-danger-btn" : "shad-primary-btn"
-          } w-full`}
+          } w-full mt-3`}
         >
           {buttonLabel}
         </SubmitButton>
