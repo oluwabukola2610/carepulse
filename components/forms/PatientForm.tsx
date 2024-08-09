@@ -8,14 +8,13 @@ import { Form, FormField, FormItem, FormLabel } from "@/components/ui/form";
 import "react-datepicker/dist/react-datepicker.css";
 import "react-phone-number-input/style.css";
 import { PatientFormValidation } from "@/lib/validation";
-import { IdentificationTypes, PatientFormDefaultValues } from "@/lib/constants";
+import { GenderOptions, PatientFormDefaultValues } from "@/lib/constants";
 import SubmitButton from "../CustomButton";
 import {
   CustomCheckbox,
   CustomDatePicker,
   CustomPhoneInput,
   CustomRadiobutton,
-  CustomSelect,
   CustomTextArea,
   CustomTextInput,
 } from "../CustomInput";
@@ -173,6 +172,17 @@ const PatientForm = () => {
               control={form.control}
               name="gender"
               label="Gender"
+              options={[
+                { value: "Male", label: "Male" },
+                {
+                  value: "Female",
+                  label: "  Female",
+                },
+                {
+                  value: "Others",
+                  label: "  Others",
+                },
+              ]}
             />
           </div>
 
@@ -252,19 +262,9 @@ const PatientForm = () => {
 
         <section className="space-y-6">
           <div className="mb-9 space-y-1">
-            <h2 className="sub-header">Identification and Verfication</h2>
+            <h2 className="sub-header">Identification and Verfication (NIN)</h2>
           </div>
 
-          <CustomSelect
-            control={form.control}
-            name="identificationType"
-            label="Identification Type"
-            placeholder="Select identification type"
-            options={IdentificationTypes.map((type) => ({
-              value: type,
-              label: type,
-            }))}
-          />
           <FormField
             control={form.control}
             name="identificationDocument"

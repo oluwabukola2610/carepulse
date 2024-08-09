@@ -177,7 +177,12 @@ export const CustomCheckbox = ({ control, name, label }: CustomProps) => {
     />
   );
 };
-export const CustomRadiobutton = ({ control, name, label }: CustomProps) => {
+export const CustomRadiobutton = ({
+  control,
+  name,
+  label,
+  options,
+}: CustomProps) => {
   return (
     <FormField
       control={control}
@@ -190,11 +195,11 @@ export const CustomRadiobutton = ({ control, name, label }: CustomProps) => {
             onValueChange={field.onChange}
             defaultValue={field.value}
           >
-            {GenderOptions.map((option, i) => (
-              <div key={option + i} className="radio-group">
-                <RadioGroupItem value={option} id={option} />
-                <Label htmlFor={option} className="cursor-pointer">
-                  {option}
+            {options?.map((option, i) => (
+              <div key={i} className="radio-group">
+                <RadioGroupItem value={option.value} id={option.value} />
+                <Label htmlFor={option.value} className="cursor-pointer">
+                  {option.label}
                 </Label>
               </div>
             ))}
@@ -205,6 +210,7 @@ export const CustomRadiobutton = ({ control, name, label }: CustomProps) => {
     />
   );
 };
+
 export const CustomSelect = ({
   control,
   name,

@@ -5,7 +5,11 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import "react-datepicker/dist/react-datepicker.css";
 import { Form } from "../ui/form";
-import { CustomDatePicker, CustomTextArea } from "../CustomInput";
+import {
+  CustomDatePicker,
+  CustomTextArea,
+  CustomRadiobutton,
+} from "../CustomInput"; // Added CustomRadioGroup component
 import SubmitButton from "../CustomButton";
 import { getAppointmentSchema } from "@/lib/validation";
 import {
@@ -27,7 +31,10 @@ export const AppointmentForm = ({
   const [cancelAppointment, { isLoading: isCanceling }] =
     useCancelAppointMentMutation();
 
-  const AppointmentFormValidation = getAppointmentSchema(type);
+  const AppointmentFormValidation = getAppointmentSchema(type).extend({
+    appointmentType: z.enum(["Free", "Emergency Response (Paid)"]), // New validation for appointment type
+  });
+
   const [showAlert, setShowAlert] = useState(false);
   const { push } = useRouter();
 
@@ -37,6 +44,7 @@ export const AppointmentForm = ({
       schedule: new Date(),
       reason: "",
       note: "",
+      appointmentType: "Free", // Default to Free Appointment
       cancellationReason: "",
     },
   });
@@ -44,13 +52,13 @@ export const AppointmentForm = ({
   const onSubmit = async (
     values: z.infer<typeof AppointmentFormValidation>
   ) => {
-    console.log("Form values:", values);
     try {
       if (type === "create" && "schedule" in values && "reason" in values) {
         const appointment = {
           schedule: values.schedule,
           reason: values.reason,
           comment: values.note,
+          appointmentType: values.appointmentType, // Include appointment type in submission
         };
         const newAppointment = await createAppointment(appointment).unwrap();
         if (newAppointment) {
@@ -113,6 +121,19 @@ export const AppointmentForm = ({
               label="Expected appointment date"
               showTimeSelect
               dateFormat="MM/dd/yyyy - h:mm aa"
+            />
+
+            <CustomRadiobutton
+              control={form.control}
+              name="appointmentType"
+              label="Fast Track Your Appointment"
+              options={[
+                { value: "Free", label: "Free Appointment" },
+                {
+                  value: "Emergency Response (Paid)",
+                  label: "Emergency Response (Paid)",
+                },
+              ]}
             />
 
             <div

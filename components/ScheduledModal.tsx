@@ -8,23 +8,38 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { AppointmentForm } from "./forms/AppointmentForm";
+import { useAcceptAppointmentMutation } from "@/services/actions/index.action";
 
 export const ScheduledModal = ({
   appointment,
+  open,
   onClose,
 }: {
   appointment?: any;
   onClose: () => void;
+  open: boolean;
 }) => {
-  const [open, setOpen] = useState(true);
+  const [acceptAppointment, { isLoading }] = useAcceptAppointmentMutation();
+  const [success, setSuccess] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
-  const handleDialogClose = () => {
-    setOpen(false);
-    onClose();
+  const handleAccept = async () => {
+    setSuccess(null);
+    setError(null);
+
+    try {
+      const res = await acceptAppointment({
+        appointmentId: appointment?.appointmentId,
+      }).unwrap();
+      setSuccess("Appointment successfully scheduled!");
+    } catch (error) {
+      setError("Failed to schedule appointment. Please try again.");
+      console.error("Failed to accept appointment", error);
+    }
   };
 
   return (
-    <Dialog open={open} onOpenChange={handleDialogClose}>
+    <Dialog open={open} onOpenChange={onClose}>
       <DialogContent className="shad-dialog sm:max-w-md">
         <DialogHeader className="mb-4 space-y-3">
           <DialogTitle className="text-xl font-bold">
@@ -52,10 +67,23 @@ export const ScheduledModal = ({
           <p className="font-medium">Comment:</p>
           <p>{appointment?.comment}</p>
         </div>
-        {/* <AppointmentForm type="schedule" /> */}
+        {/* Success or Error Message */}
+        {success && (
+          <div className="mt-4 text-center text-green-800 font-medium">
+            {success}
+          </div>
+        )}
+        {error && (
+          <div className="mt-4 text-center text-red-600 font-medium">
+            {error}
+          </div>
+        )}
         <div className="flex justify-center mt-4">
-          <Button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-            Accept
+          <Button
+            onClick={handleAccept}
+            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+          >
+            {isLoading ? "Loading..." : "Accept"}
           </Button>
         </div>
       </DialogContent>

@@ -75,7 +75,7 @@ const authSlice = ApiSlice.enhanceEndpoints({
     }),
     createAppointMent: builder.mutation({
       query: (body) => ({
-        url: "user/book-appointment",
+        url: "appt/book-appointment",
         method: "POST",
         body,
       }),
@@ -83,21 +83,23 @@ const authSlice = ApiSlice.enhanceEndpoints({
     }),
     cancelAppointMent: builder.mutation({
       query: (body) => ({
-        url: "user/cancel-appointment",
+        url: "appt/cancel-appointment",
         method: "POST",
         body,
       }),
       invalidatesTags: ["Appointments"],
     }),
-    getAllPatient: builder.query({
-      query: () => ({
-        url: "user/patients",
-        method: "GET",
+    acceptAppointment: builder.mutation({
+      query: (body) => ({
+        url: "appt/accept",
+        method: "POST",
+        body,
       }),
+      invalidatesTags: ["Appointments"],
     }),
     getAllApointment: builder.query({
       query: () => ({
-        url: "user/appointments",
+        url: "appt/appointments",
         method: "GET",
       }),
       providesTags: ["Appointments"],
@@ -106,6 +108,13 @@ const authSlice = ApiSlice.enhanceEndpoints({
       query: () => ({
         url: "user/physicians",
         method: "GET",
+      }),
+    }),
+    getPatientDetails: builder.mutation({
+      query: (body) => ({
+        url: "user/patient-data",
+        method: "POST",
+        body,
       }),
     }),
   }),
@@ -126,6 +135,7 @@ export const {
   useCreateAppointMentMutation,
   useCancelAppointMentMutation,
   useGetAllApointmentQuery,
-  useGetAllPatientQuery,
+  useGetPatientDetailsMutation,
   useGetPhysicianQuery,
+  useAcceptAppointmentMutation,
 } = authSlice;

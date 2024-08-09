@@ -13,6 +13,7 @@ import {
   CustomDatePicker,
   CustomPhoneInput,
   CustomRadiobutton,
+  CustomSelect,
   CustomTextInput,
 } from "../CustomInput";
 import { DoctorFormDefaultValues } from "@/lib/constants";
@@ -62,8 +63,8 @@ const PhysicianForm = () => {
       birthDate: values.birthDate,
       gender: values.gender,
       address: values.address,
-      emergencyContactName: values.emergencyContactName,
-      emergencyContactNumber: values.emergencyContactNumber,
+      // emergencyContactName: values.emergencyContactName,
+      // emergencyContactNumber: values.emergencyContactNumber,
     };
 
     const medicalData = {
@@ -81,7 +82,7 @@ const PhysicianForm = () => {
           updatePhysician(medicalData).unwrap(),
           upload(formData).unwrap(),
         ]);
-        
+
       if (
         personalResponse.message === "User data updated" &&
         medicalResponse.status === "ok" &&
@@ -114,7 +115,7 @@ const PhysicianForm = () => {
           <h1 className="header">Welcome 👋</h1>
           <p className="text-dark-700">Let us know more about yourself.</p>
         </section>
-        {showAlert && ( // Conditionally render alert
+        {showAlert && (
           <Alert
             title={alertType === "success" ? "Success!" : "Error!"}
             text={
@@ -168,6 +169,17 @@ const PhysicianForm = () => {
               control={form.control}
               name="gender"
               label="Gender"
+              options={[
+                { value: "Male", label: "Male" },
+                {
+                  value: "Female",
+                  label: "  Female",
+                },
+                {
+                  value: "Others",
+                  label: "  Others",
+                },
+              ]}
             />
           </div>
 
@@ -185,11 +197,18 @@ const PhysicianForm = () => {
             placeholder="ABC123456"
           />
 
-          <CustomTextInput
+          <CustomSelect
             control={form.control}
             name="specialization"
             label="Specialization"
             placeholder="Cardiology"
+            options={[
+              { value: "Cardiology", label: "Cardiology" },
+              { value: "Orthopedics", label: "Orthopedics" },
+              { value: "Dermatology", label: "Dermatology" },
+              { value: "Gynecology", label: "Gynecology" },
+              { value: "Dentistry", label: "Dentistry" },
+            ]}
           />
 
           <CustomTextInput
@@ -213,14 +232,20 @@ const PhysicianForm = () => {
             placeholder="14 Street, New York, NY - 5101"
           />
 
-          <CustomTextInput
+          <CustomSelect
             control={form.control}
             name="consultationHours"
             label="Consultation Hours"
-            placeholder="9 AM - 5 PM"
+            placeholder="Select a time slot"
+            options={[
+              { label: "9:00 AM - 9:30 AM", value: "9:00AM-9:30AM" },
+              { label: "2:30 AM - 3:00 PM", value: "9:30PM-10:00PM" },
+              { label: "5:00 PM - 5:30 PM", value: "5:00 PM - 5:30 PM" },
+              { label: "5:30 PM - 6:00 PM", value: "5:30 PM - 6:00 PM" },
+            ]}
           />
 
-          <div className="flex flex-col gap-6 xl:flex-row">
+          {/* <div className="flex flex-col gap-6 xl:flex-row">
             <CustomTextInput
               control={form.control}
               name="emergencyContactName"
@@ -234,7 +259,7 @@ const PhysicianForm = () => {
               label="Emergency Contact Number"
               placeholder="(555) 123-4567"
             />
-          </div>
+          </div> */}
         </section>
 
         <section className="space-y-6">

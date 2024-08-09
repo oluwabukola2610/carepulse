@@ -23,6 +23,7 @@ import { useGetAllApointmentQuery } from "@/services/actions/index.action";
 import { Skeleton } from "./ui/skeleton";
 import { ScheduledModal } from "./ScheduledModal";
 import CancelModal from "./CancelModal";
+import DetailsModal from "./DetailsModal";
 
 export interface Appointment {
   _id: string;
@@ -43,6 +44,8 @@ export function DataTable() {
   const [scheduleModalOpen, setScheduleModalOpen] = useState<boolean>(false);
   const [selectedAppointment, setSelectedAppointment] =
     useState<Appointment | null>(null);
+  const [detailsModalOpen, setdetailsModalOpen] = useState<boolean>(false);
+
   const [cancelModalOpen, setCancelModalOpen] = useState(false);
 
   const appointments: Appointment[] = patientAppointment?.appointments || [];
@@ -102,28 +105,33 @@ export function DataTable() {
         const data = row.original;
         return (
           <div className="flex space-x-2">
-            {data.status === "scheduled" ? (
-              ""
-            ) : (
-              <button
-                className="btn-scheduled"
-                onClick={() => handleScheduleClick(row.original)}
-              >
-                Schedule
-              </button>
-            )}
-            <button className="btn-details">Details</button>
-            {data.status === "cancelled" ? (
-              ""
-            ) : (
-              <button
-                onClick={() => handleCancel(row.original)}
-                className="btn-cancel"
-              >
-                Cancel
-              </button>
-            )}
-          </div>
+          {(data.status === "pending" || data.status === "cancelled") && (
+            <button
+              className="btn-scheduled"
+              onClick={() => handleScheduleClick(row.original)}
+            >
+              Schedule
+            </button>
+          )}
+          
+          {data.status !== "cancelled" && (
+            <button
+              className="btn-details"
+              onClick={() => handleDetails(row.original)}
+            >
+              Details
+            </button>
+          )}
+          
+          {(data.status === "pending" ) && (
+            <button
+              onClick={() => handleCancel(row.original)}
+              className="btn-cancel"
+            >
+              Cancel
+            </button>
+          )}
+        </div>
         );
       },
     },
@@ -134,6 +142,10 @@ export function DataTable() {
   };
   const handleCancel = (appointment: Appointment) => {
     setCancelModalOpen(true);
+    setSelectedAppointment(appointment);
+  };
+  const handleDetails = (appointment: Appointment) => {
+    setdetailsModalOpen(true);
     setSelectedAppointment(appointment);
   };
   const table = useReactTable({
@@ -245,6 +257,8 @@ export function DataTable() {
         <ScheduledModal
           appointment={selectedAppointment}
           onClose={() => setScheduleModalOpen(false)}
+          open={scheduleModalOpen}
+
         />
       )}
       {cancelModalOpen && (
@@ -252,6 +266,13 @@ export function DataTable() {
           open={cancelModalOpen}
           onClose={() => setCancelModalOpen(false)}
           id={selectedAppointment?._id}
+        />
+      )}
+      {detailsModalOpen && (
+        <DetailsModal
+          open={detailsModalOpen}
+          onClose={() => setdetailsModalOpen(false)}
+          id={selectedAppointment?.userId}
         />
       )}
     </div>
